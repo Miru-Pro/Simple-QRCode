@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local QR System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #qr-container {
+            margin-top: 25px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #qrcode {
+            margin-bottom: 15px;
+        }
+
+        .profile-display {
+            text-align: left;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid #28a745;
+        }
+
+        .profile-display h3 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+        }
+
+        .profile-line {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+
+    <div id="generator-view" class="card">
+        <h2>QR Generator</h2>
+        <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Fill out the details to generate your code.</p>
+        
+        <div class="input-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" placeholder="Enter your name">
+        </div>
+
+        <div class="input-group">
+            <label for="age">Age:</label>
+            <input type="number" id="age" placeholder="Enter your age">
+        </div>
+
+        <div class="input-group">
+            <label for="place">Where you come from:</label>
+            <input type="text" id="place" placeholder="Enter your city/country">
+        </div>
+
+        <button onclick="createQR()">Generate QR Code</button>
+
+        <div id="qr-container">
+            <div id="qrcode"></div>
+            <p style="font-size: 14px; color: #666;">Scan this with your phone camera!</p>
+        </div>
+    </div>
+
+    <div id="display-view" class="card hidden">
+        <div class="profile-display">
+            <h3>Scanned Information</h3>
+            <div class="profile-line"><strong>Name:</strong> <span id="view-name"></span></div>
+            <div class="profile-line"><strong>Age:</strong> <span id="view-age"></span></div>
+            <div class="profile-line"><strong>From:</strong> <span id="view-place"></span></div>
+        </div>
+        <button style="margin-top: 20px; background-color: #6c757d;" onclick="window.location.href=window.location.origin + window.location.pathname">Create Another</button>
+    </div>
+
+    <script>
+        // Read data if accessed via phone scan
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlName = urlParams.get('name');
+        const urlAge = urlParams.get('age');
+        const urlPlace = urlParams.get('place');
+
+        if (urlName && urlAge && urlPlace) {
+            document.getElementById('generator-view').classList.add('hidden');
+            document.getElementById('display-view').classList.remove('hidden');
+            
+            document.getElementById('view-name').innerText = urlName;
+            document.getElementById('view-age').innerText = urlAge;
+            document.getElementById('view-place').innerText = urlPlace;
+        }
+
+        let qrCodeObject = null;
+
+        function createQR() {
+            const name = document.getElementById("name").value.trim();
+            const age = document.getElementById("age").value.trim();
+            const place = document.getElementById("place").value.trim();
+
+            if (!name || !age || !place) {
+                alert("Please fill up all fields!");
+                return;
+            }
+
+            // Automatically detects your laptop's current network address
+            const currentUrl = window.location.origin + window.location.pathname;
+            const dataUrl = `${currentUrl}?name=${encodeURIComponent(name)}&age=${encodeURIComponent(age)}&place=${encodeURIComponent(place)}`;
+
+            document.getElementById("qr-container").style.display = "flex";
+
+            if (qrCodeObject === null) {
+                qrCodeObject = new QRCode(document.getElementById("qrcode"), {
+                    text: dataUrl,
+                    width: 200,
+                    height: 200,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            } else {
+                qrCodeObject.clear();
+                qrCodeObject.makeCode(dataUrl);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -139,7 +139,7 @@
     </div>
 
     <script>
-        // Read data if accessed via phone scan
+        // Read data if accessed from phone scan
         const urlParams = new URLSearchParams(window.location.search);
         const urlName = urlParams.get('name');
         const urlAge = urlParams.get('age');
@@ -166,7 +166,7 @@
                 return;
             }
 
-            // Automatically detects your laptop's current network address
+            // Automatically detects laptop's current network address
             const currentUrl = window.location.origin + window.location.pathname;
             const dataUrl = `${currentUrl}?name=${encodeURIComponent(name)}&age=${encodeURIComponent(age)}&place=${encodeURIComponent(place)}`;
 
